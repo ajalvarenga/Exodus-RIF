@@ -1,0 +1,76 @@
+# Exodus RIF — Prompt Library
+
+> These are the actual prompts used during the Exodus RIF operational response.
+> They are documented here to show the thinking behind the system — not just that AI was used, but *how* it was directed.
+
+---
+
+## Prompt 001 — Jira CSV Data Consolidation & Offboarding Tracker
+
+This was the anchor prompt of the entire project. The goal was to take a raw Jira CSV export — messy, unfiltered, full of irrelevant tickets — and transform it into a clean, actionable offboarding tracker ready for Google Sheets without any manual cleanup.
+
+**The Problem It Solved:**
+Every offboarding ticket lived inside a raw Jira export alongside hundreds of unrelated service desk requests. Manually filtering, deduplicating, and reformatting that data for every building across campus would have taken days. This prompt compressed that into minutes.
+
+```
+Role: You are an expert Data Analyst and Google Sheets Specialist.
+
+Context: I am uploading a raw Jira CSV export containing campus service desk 
+tickets. I need a clean, project-ready tracking list specifically for employee 
+offboardings.
+
+Task:
+Please scan the uploaded data, filter for relevant records, extract specific 
+data points, and generate a clean tabular dataset optimized for a Google Sheet.
+
+1. Filter Criteria:
+   - Identify ONLY tickets where the 'Summary' contains the word "Termination".
+   - Ignore all other non-offboarding/routine tickets.
+   - Deduplicate the final list by Employee Name so each person appears exactly once.
+
+2. Data Extraction & Column Mapping:
+   Please output a table structured cleanly from Column A to Column F 
+   with the following fields:
+   - Column A (Building): Identify the building code from the desk string 
+     (e.g., SMO3, SMO4, SMO6, SMO8).
+   - Column B (Floor): Convert the floor code into a reader-friendly label 
+     (e.g., "02" becomes "2nd Floor", "03" becomes "3rd Floor", 
+     "B1" becomes "Basement").
+   - Column C (Employee Name): Extract the exact text after "Termination - " 
+     from the ticket Summary.
+   - Column D (Desk Number): Pull the value listed under "Seat Assignment" 
+     in the ticket description.
+   - Column E (Items Requested): Extract the specific hardware list from the 
+     Jira field "Custom field (Requested Items)". Do not use default or 
+     inferred values.
+   - Column F (Shipping Address): Extract the actual shipping address from 
+     the Jira field "Custom field (Shipping Address)". If blank or an 
+     in-office return, output "Office Drop-off".
+
+3. Sorting Requirements:
+   - Group and sort the final dataset alphabetically by Building, then 
+     sequentially by Floor, and finally alphabetically by Employee Name.
+
+4. Output Format:
+   - Provide the final cleaned list in a raw CSV block or a downloadable 
+     format so it can be cleanly copied/pasted directly into Google Sheets.
+```
+
+---
+
+**Why This Prompt Works:**
+
+- **Role assignment** — telling the AI it's a Data Analyst and Google Sheets Specialist immediately narrows its behavior toward structured, clean output
+- **Explicit filter logic** — rather than asking AI to "find the relevant tickets," the prompt specifies exactly what makes a ticket relevant ("Summary contains Termination")
+- **Column-by-column mapping** — removes all ambiguity about output structure; the AI knows exactly what goes where
+- **Deduplication instruction** — without this, the same employee could appear multiple times across tickets
+- **Output format specification** — requesting CSV format means the output is immediately usable, no reformatting required
+
+---
+
+**The Result:**
+A clean, sorted, deduplicated offboarding tracker — organized by building, floor, and employee — ready to paste directly into Google Sheets. What would have taken hours of manual filtering was done in a single pass.
+
+---
+
+*Additional prompts will be added as the project documentation is completed.*
